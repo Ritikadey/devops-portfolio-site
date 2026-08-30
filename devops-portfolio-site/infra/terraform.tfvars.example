@@ -1,0 +1,15 @@
+project_name        = "devops-portfolio"
+environment         = "prod"
+aws_region          = "ap-south-1"
+github_repository   = "your-github-username/devops-portfolio-site"
+alert_email         = "you@example.com"
+budget_limit_usd    = 2
+
+# Leave both empty to skip Route 53 / ACM entirely (recommended to start —
+# zero extra cost, you still get a valid HTTPS URL on *.cloudfront.net).
+domain_name         = ""
+route53_zone_id     = ""
+
+# Placeholder for the very first `terraform apply`, before any image has
+# been pushed. The backend deploy workflow updates the real image after that.
+lambda_image_uri    = "PLACEHOLDER"

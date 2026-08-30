@@ -1,0 +1,8 @@
+# Output of `terraform apply` in infra/bootstrap/ (see backend_config_snippet).
+# Copy to backend.hcl (gitignored) and run:
+#   terraform init -backend-config=backend.hcl
+bucket         = "devops-portfolio-tfstate-xxxxxx"
+key            = "devops-portfolio/terraform.tfstate"
+region         = "ap-south-1"
+dynamodb_table = "devops-portfolio-tf-lock"
+encrypt        = true

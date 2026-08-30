@@ -1,0 +1,8 @@
+.terraform/
+*.tfstate
+*.tfstate.*
+backend.hcl
+terraform.tfvars
+crash.log
+# Note: .terraform.lock.hcl is intentionally NOT ignored — commit it so
+# everyone (and CI) resolves the exact same provider versions.

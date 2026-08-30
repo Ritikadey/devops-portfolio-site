@@ -1,0 +1,21 @@
+{
+  "name": "devops-portfolio-backend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Visitor-counter API — Lambda (container image) + DynamoDB, behind API Gateway.",
+  "type": "module",
+  "scripts": {
+    "test": "node --test test/",
+    "lint": "eslint src test --ext .js"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.632.0",
+    "@aws-sdk/lib-dynamodb": "^3.632.0"
+  },
+  "devDependencies": {
+    "eslint": "^9.9.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

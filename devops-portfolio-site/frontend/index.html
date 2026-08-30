@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ritika Rao — DevOps &amp; Cloud Infrastructure</title>
+  <meta name="description" content="DevOps portfolio: a production-style, containerized site running on AWS Free Tier — S3, CloudFront, Lambda, DynamoDB, provisioned with Terraform and shipped through GitHub Actions." />
+  <meta name="theme-color" content="#0F1115" />
+  <link rel="icon" type="image/svg+xml" href="./public/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./src/style.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="topbar">
+    <div class="topbar__inner">
+      <a class="brand" href="#top" aria-label="Home">
+        <span class="brand__dot" aria-hidden="true"></span>
+        <span class="brand__text">rr<span class="brand__accent">.</span>ops</span>
+      </a>
+      <nav class="nav" aria-label="Primary">
+        <a href="#architecture">Architecture</a>
+        <a href="#pipeline">Pipeline</a>
+        <a href="#stack">Stack</a>
+        <a href="#cost">Cost</a>
+        <a href="#contact" class="nav__cta">Get in touch</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- HERO -->
+    <section class="hero" id="top">
+      <div class="hero__inner">
+        <div class="hero__terminal" role="img" aria-label="Terminal boot sequence showing the site's deployment status">
+          <div class="terminal__bar">
+            <span class="terminal__dot terminal__dot--r"></span>
+            <span class="terminal__dot terminal__dot--y"></span>
+            <span class="terminal__dot terminal__dot--g"></span>
+            <span class="terminal__title">deploy.log</span>
+          </div>
+          <pre class="terminal__body" id="terminalBody" aria-hidden="true"></pre>
+        </div>
+
+        <h1 class="hero__title">
+          I ship infrastructure<br />
+          the way I ship code.
+        </h1>
+        <p class="hero__subtitle">
+          This page is the proof: a static site on <strong>S3 + CloudFront</strong>, a serverless
+          API on <strong>Lambda + DynamoDB</strong>, provisioned with <strong>Terraform</strong> and
+          deployed by <strong>GitHub Actions</strong> — running entirely inside the AWS Free Tier.
+        </p>
+        <div class="hero__actions">
+          <a class="btn btn--primary" href="#architecture">See the architecture</a>
+          <a class="btn btn--ghost" href="https://github.com/" target="_blank" rel="noopener">View source</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- LIVE SYSTEMS PANEL (signature element) -->
+    <section class="panel" aria-labelledby="panel-heading">
+      <div class="panel__inner">
+        <div class="panel__head">
+          <span class="status-dot" id="statusDot" aria-hidden="true"></span>
+          <h2 id="panel-heading">Live systems panel</h2>
+          <span class="panel__note">Pulled from the deployed stack when the API is reachable</span>
+        </div>
+        <div class="panel__grid">
+          <div class="metric">
+            <span class="metric__label">Site status</span>
+            <span class="metric__value" id="metricStatus">checking…</span>
+          </div>
+          <div class="metric">
+            <span class="metric__label">API latency</span>
+            <span class="metric__value" id="metricLatency">—</span>
+          </div>
+          <div class="metric">
+            <span class="metric__label">Visitor count</span>
+            <span class="metric__value" id="metricVisitors">—</span>
+          </div>
+          <div class="metric">
+            <span class="metric__label">Infra as code</span>
+            <span class="metric__value">Terraform</span>
+          </div>
+          <div class="metric">
+            <span class="metric__label">Deploy trigger</span>
+            <span class="metric__value">git push → main</span>
+          </div>
+          <div class="metric">
+            <span class="metric__label">Monthly cost target</span>
+            <span class="metric__value">&lt; $1.00</span>
+          </div>
+        </div>
+        <p class="panel__fallback" id="panelFallback" hidden>
+          The API endpoint isn't configured yet — this panel goes live once
+          <code>VITE_API_URL</code> points at your deployed API Gateway stage. See the README.
+        </p>
+      </div>
+    </section>
+
+    <!-- ARCHITECTURE -->
+    <section class="section" id="architecture">
+      <div class="section__inner">
+        <p class="eyebrow">Architecture</p>
+        <h2>One request, two Free Tier services, zero servers to patch.</h2>
+        <p class="section__lede">
+          The frontend is static assets on S3 behind CloudFront for TLS, caching and a global edge.
+          The one dynamic feature — the visitor counter above — is a Lambda function behind API
+          Gateway, backed by DynamoDB. Nothing here needs an always-on EC2 instance or a NAT gateway,
+          which is where Free Tier accounts usually start racking up charges.
+        </p>
+        <div class="diagram" id="architectureDiagram"></div>
+        <ul class="diagram__legend">
+          <li><span class="legend__swatch legend__swatch--edge"></span> Edge / delivery</li>
+          <li><span class="legend__swatch legend__swatch--compute"></span> Compute / data</li>
+          <li><span class="legend__swatch legend__swatch--ci"></span> CI/CD path</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- PIPELINE -->
+    <section class="section section--alt" id="pipeline">
+      <div class="section__inner">
+        <p class="eyebrow">CI/CD</p>
+        <h2>Every push to main runs the same eight stages.</h2>
+        <p class="section__lede">
+          Two independent GitHub Actions workflows — one for the frontend, one for the backend —
+          only run when files in their own directory change. Both authenticate to AWS with a
+          short-lived OIDC token, never a stored access key.
+        </p>
+        <ol class="pipeline">
+          <li class="pipeline__step">
+            <span class="pipeline__num">01</span>
+            <div>
+              <h3>Checkout</h3>
+              <p>actions/checkout pulls the commit that triggered the run.</p>
+            </div>
+          </li>
+          <li class="pipeline__step">
+            <span class="pipeline__num">02</span>
+            <div>
+              <h3>Lint &amp; format check</h3>
+              <p>ESLint / Prettier for the frontend, tfsec for the Terraform.</p>
+            </div>
+          </li>
+          <li class="pipeline__step">
+            <span class="pipeline__num">03</span>
+            <div>
+              <h3>Test</h3>
+              <p>Backend unit tests run against a mocked DynamoDB client.</p>
+            </div>
+          </li>
+          <li class="pipeline__step">
+            <span class="pipeline__num">04</span>
+            <div>
+              <h3>Build</h3>
+              <p>Vite bundles the frontend; the backend image is built with Docker.</p>
+            </div>
+          </li>
+          <li class="pipeline__step">
+            <span class="pipeline__num">05</span>
+            <div>
+              <h3>Authenticate</h3>
+              <p>aws-actions/configure-aws-credentials assumes a role via OIDC — no long-lived secrets.</p>
+            </div>
+          </li>
+          <li class="pipeline__step">
+            <span class="pipeline__num">06</span>
+            <div>
+              <h3>Publish</h3>
+              <p>Frontend syncs to S3; backend image is pushed to a private ECR repo.</p>
+            </div>
+          </li>
+          <li class="pipeline__step">
+            <span class="pipeline__num">07</span>
+            <div>
+              <h3>Release</h3>
+              <p>CloudFront cache invalidation, or a Lambda function-code update to the new image digest.</p>
+            </div>
+          </li>
+          <li class="pipeline__step">
+            <span class="pipeline__num">08</span>
+            <div>
+              <h3>Verify</h3>
+              <p>A smoke-test step curls the live URL and fails the run on a non-200.</p>
+            </div>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- STACK -->
+    <section class="section" id="stack">
+      <div class="section__inner">
+        <p class="eyebrow">Stack</p>
+        <h2>What's actually running underneath.</h2>
+        <div class="stack-grid">
+          <div class="stack-card">
+            <h3>Compute &amp; delivery</h3>
+            <p>S3 static hosting, CloudFront (OAC, no public bucket), Lambda (container image), API Gateway HTTP API.</p>
+          </div>
+          <div class="stack-card">
+            <h3>Data</h3>
+            <p>DynamoDB on-demand table for the visitor counter — no provisioned capacity to forget about.</p>
+          </div>
+          <div class="stack-card">
+            <h3>Infrastructure as code</h3>
+            <p>Terraform, remote state in a versioned S3 bucket with a DynamoDB lock table.</p>
+          </div>
+          <div class="stack-card">
+            <h3>CI/CD</h3>
+            <p>GitHub Actions, OIDC federation to AWS, environment-gated approvals for Terraform apply.</p>
+          </div>
+          <div class="stack-card">
+            <h3>Containers</h3>
+            <p>Multi-stage Docker builds for local parity; the Lambda ships as a container image via ECR.</p>
+          </div>
+          <div class="stack-card">
+            <h3>Observability &amp; security</h3>
+            <p>CloudWatch alarms + dashboard, AWS Budgets alert, least-privilege IAM, Dependabot, CodeQL, tfsec.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- COST -->
+    <section class="section section--alt" id="cost">
+      <div class="section__inner">
+        <p class="eyebrow">Cost</p>
+        <h2>Designed to stay inside the Free Tier.</h2>
+        <p class="section__lede">
+          Nothing here runs on an always-on server. The table below is the honest cost model,
+          including what happens after the 12-month Free Tier window ends.
+        </p>
+        <div class="table-wrap">
+          <table class="cost-table">
+            <thead>
+              <tr><th>Service</th><th>Free Tier allowance</th><th>Typical portfolio usage</th><th>Cost after 12 months</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>S3</td><td>5 GB storage, 20k GET/month</td><td>&lt; 5 MB, low traffic</td><td>~$0.01–0.05/mo</td></tr>
+              <tr><td>CloudFront</td><td>1 TB transfer, 10M requests/mo</td><td>Well under limit</td><td>~$0.00–0.10/mo</td></tr>
+              <tr><td>Lambda</td><td>1M requests/mo — always free</td><td>Handful of requests/day</td><td>$0.00</td></tr>
+              <tr><td>API Gateway (HTTP API)</td><td>1M requests/mo</td><td>Well under limit</td><td>~$0.00–0.05/mo</td></tr>
+              <tr><td>DynamoDB</td><td>25 GB, on-demand — always free tier applies to provisioned only</td><td>A handful of items</td><td>~$0.00–0.02/mo</td></tr>
+              <tr><td>ECR</td><td>500 MB-month private storage (12 mo)</td><td>One small image</td><td>~$0.10/mo per extra GB</td></tr>
+              <tr><td>Route 53 (optional)</td><td>Not covered by Free Tier</td><td>1 hosted zone, if used</td><td>$0.50/mo + registrar fee</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="section__note">
+          A Terraform-managed <strong>AWS Budgets</strong> alert emails a warning at 80% of a
+          configurable threshold (default $2), so a misconfiguration gets caught before it becomes a bill.
+        </p>
+      </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section class="section" id="contact">
+      <div class="section__inner section__inner--narrow">
+        <p class="eyebrow">Contact</p>
+        <h2>Let's talk infrastructure.</h2>
+        <p class="section__lede">
+          Open to DevOps / Cloud / Platform engineering roles. The fastest way to reach me is
+          email or LinkedIn — the button below just pings the visitor counter above, it doesn't send anything.
+        </p>
+        <div class="hero__actions">
+          <a class="btn btn--primary" href="mailto:you@example.com">Email me</a>
+          <a class="btn btn--ghost" href="https://www.linkedin.com/" target="_blank" rel="noopener">LinkedIn</a>
+          <button class="btn btn--ghost" id="pingBtn" type="button">Ping the API</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer__inner">
+      <p>Built and deployed as a DevOps portfolio project. S3 · CloudFront · Lambda · DynamoDB · Terraform · GitHub Actions.</p>
+      <p class="footer__meta">Build <span id="footerBuild">local</span></p>
+    </div>
+  </footer>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
