@@ -1,0 +1,6 @@
+# root-level catch-all; each package also has its own .gitignore
+.DS_Store
+*.log
+.env
+.idea/
+.vscode/

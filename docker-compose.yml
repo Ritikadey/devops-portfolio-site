@@ -1,0 +1,32 @@
+version: '3.9'
+
+# Local development / interview-demo stack. Production hosting is S3 +
+# CloudFront + Lambda (see infra/), not these containers — this compose
+# file exists to prove local/prod parity and for quick manual testing.
+#
+# Usage:
+#   docker compose up --build
+#   Frontend: http://localhost:8080
+#   Backend health check: curl -X POST http://localhost:9000/2015-03-31/functions/function/invocations \
+#     -d '{"rawPath":"/health","requestContext":{"http":{"method":"GET"}}}'
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - '8080:8080'
+
+  backend:
+    build:
+      context: ./backend
+    ports:
+      - '9000:8080' # Lambda Runtime Interface Emulator listens on 8080 inside the image
+    environment:
+      VISITORS_TABLE: local-visitors
+      ALLOWED_ORIGIN: '*'
+      AWS_ACCESS_KEY_ID: local
+      AWS_SECRET_ACCESS_KEY: local
+      AWS_REGION: ap-south-1
+      # Point at DynamoDB Local if you want the counter to actually persist:
+      # AWS_ENDPOINT_URL_DYNAMODB: http://dynamodb-local:8000
