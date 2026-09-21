@@ -9,7 +9,7 @@ RUN npm run build
 # --- run stage -------------------------------------------------------------
 # This image is for local development / CI smoke-testing parity.
 # Production hosting is S3 + CloudFront, not this container (see README).
-FROM nginx:1.27-alpine AS run
+FROM nginx:1.29-alpine AS run
 COPY --from=build /app/dist /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 EXPOSE 8080
