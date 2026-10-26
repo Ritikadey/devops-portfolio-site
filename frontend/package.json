@@ -12,7 +12,7 @@
     "format:check": "prettier --check \"src/**/*.{js,css,html}\""
   },
   "devDependencies": {
-    "eslint": "^9.9.0",
+    "eslint": "^10.13.0",
     "prettier": "^3.3.3",
     "vite": "^5.4.0"
   }
